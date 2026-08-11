@@ -1,0 +1,286 @@
+:root {
+  color: #111;
+  background: #fdfdfd;
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  min-height: 100vh;
+  background: #fdfdfd;
+}
+
+button,
+[role="slider"] {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+.app-shell {
+  min-height: 100dvh;
+  padding: 18px;
+  position: relative;
+}
+
+.topbar {
+  position: absolute;
+  right: 18px;
+  top: 18px;
+  z-index: 2;
+}
+
+.mode-switch {
+  align-items: center;
+  background: #fdfdfd;
+  border: 1px solid #e5e5e5;
+  border-radius: 999px;
+  display: inline-flex;
+  gap: 2px;
+  min-height: 48px;
+  padding: 2px;
+}
+
+.mode-button {
+  background: transparent;
+  border: 0;
+  border-radius: 999px;
+  color: #8a8a8a;
+  font-size: 13px;
+  font-weight: 500;
+  min-height: 44px;
+  min-width: 58px;
+  padding: 7px 12px;
+  transition: background-color 140ms ease, color 140ms ease, box-shadow 140ms ease;
+}
+
+.mode-button:hover {
+  color: #24231f;
+}
+
+.mode-button--active {
+  background: #050505;
+  box-shadow: none;
+  color: #fff;
+}
+
+.mode-button--active:hover {
+  color: #fff;
+}
+
+.main-content {
+  margin: 0 auto;
+  max-width: 1180px;
+}
+
+.portrait-panel {
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+  padding: 27vh 0 clamp(12px, 1.7vh, 20px);
+}
+
+.portrait-frame {
+  aspect-ratio: 1;
+  max-width: 315px;
+  position: relative;
+  width: min(26vw, 315px);
+}
+
+.face-canvas {
+  display: block;
+  height: 100%;
+  object-fit: contain;
+  width: 100%;
+}
+
+.portrait-unavailable {
+  align-items: center;
+  border: 1px dashed #cfcfcf;
+  border-radius: 50%;
+  color: #888;
+  display: flex;
+  font-size: 11px;
+  height: 100%;
+  justify-content: center;
+  letter-spacing: 0.08em;
+  text-align: center;
+  text-transform: uppercase;
+  width: 100%;
+}
+
+.age-readout {
+  background: #050505;
+  border-radius: 999px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1;
+  margin-top: clamp(24px, 5vh, 46px);
+  padding: 10px 16px;
+}
+
+.asset-status {
+  color: #996648;
+  font-size: 12px;
+  margin: 14px 0 0;
+  text-align: center;
+}
+
+.controls-panel {
+  margin: 0 auto;
+  max-width: 940px;
+  padding: 0 clamp(0px, 2vw, 24px);
+  position: relative;
+}
+
+.hint {
+  align-items: center;
+  color: #888;
+  display: flex;
+  font-size: 12px;
+  gap: 8px;
+  justify-content: center;
+  letter-spacing: 0.02em;
+  min-height: 24px;
+  opacity: 1;
+  position: absolute;
+  top: -26px;
+  width: 100%;
+  transform: translateY(0);
+  transition: opacity 260ms ease, transform 260ms ease;
+}
+
+.hint--hidden {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-5px);
+}
+
+.hint-dot {
+  background: #aaa;
+  border-radius: 50%;
+  display: inline-block;
+  height: 5px;
+  width: 5px;
+}
+
+.ruler-block {
+  margin: 0 auto;
+  max-width: min(62vw, 760px);
+  width: 100%;
+}
+
+.ruler-viewport {
+  cursor: ew-resize;
+  height: 106px;
+  margin: 0 auto;
+  max-width: 100%;
+  outline: none;
+  overflow: hidden;
+  position: relative;
+  touch-action: none;
+  user-select: none;
+}
+
+.ruler-viewport:focus-visible {
+  outline: none;
+}
+
+.ruler-viewport:focus-visible .ruler-center {
+  width: 4px;
+}
+
+.ruler-tick {
+  background: #c7c7c7;
+  bottom: 5px;
+  display: block;
+  max-height: calc(100% - 10px);
+  position: absolute;
+  transform: translateX(-50%);
+  width: 2px;
+}
+
+.ruler-center {
+  background: #050505;
+  bottom: 5px;
+  height: 80px;
+  left: 50%;
+  position: absolute;
+  transform: translateX(-50%);
+  width: 4px;
+}
+
+.footer-note {
+  bottom: 18px;
+  color: #aaa;
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.06em;
+  left: 50%;
+  position: fixed;
+  text-align: center;
+  text-transform: uppercase;
+  transform: translateX(-50%);
+  white-space: nowrap;
+}
+
+.sr-only {
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  width: 1px;
+  clip: rect(0, 0, 0, 0);
+}
+
+@media (max-width: 640px) {
+  .app-shell {
+    padding: 16px;
+  }
+
+  .portrait-panel {
+    padding-top: 22vh;
+  }
+
+  .portrait-frame {
+    max-width: 300px;
+    width: min(68vw, 300px);
+  }
+
+  .age-readout {
+    margin-top: 3vh;
+  }
+
+  .ruler-block {
+    max-width: 100%;
+  }
+
+  .ruler-viewport {
+    height: 92px;
+  }
+
+  .topbar {
+    right: 14px;
+    top: 14px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
