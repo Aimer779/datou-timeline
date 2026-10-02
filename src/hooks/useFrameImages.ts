@@ -1,13 +1,13 @@
 import { useEffect, useState } from 'react'
 import { parseManifest } from '../manifest'
-import type { AgeFrameManifest, LoadedFrame } from '../types'
+import type { YearFrameManifest, LoadedFrame } from '../types'
 
 export interface FrameImageState {
-  manifest: AgeFrameManifest | null
+  manifest: YearFrameManifest | null
   loaded: ReadonlyMap<number, LoadedFrame>
   loading: boolean
   error: string | null
-  failedAges: readonly number[]
+  failedYears: readonly number[]
 }
 
 export function finalizeFrameLoading(state: FrameImageState): FrameImageState {
@@ -15,7 +15,7 @@ export function finalizeFrameLoading(state: FrameImageState): FrameImageState {
     return {
       ...state,
       loading: false,
-      error: 'No age portraits could be loaded',
+      error: 'No year portraits could be loaded',
     }
   }
   return { ...state, loading: false }
@@ -27,7 +27,7 @@ function loadImage(path: string): Promise<HTMLImageElement> {
     image.decoding = 'async'
     image.onload = () => resolve(image)
     image.onerror = () => reject(new Error(`Unable to load ${path}`))
-    image.src = `/age-frames/${path}`
+    image.src = `/year-frames/${path}`
   })
 }
 
@@ -37,7 +37,7 @@ export function useFrameImages(): FrameImageState {
     loaded: new Map(),
     loading: true,
     error: null,
-    failedAges: [],
+    failedYears: [],
   })
 
   useEffect(() => {
@@ -46,7 +46,7 @@ export function useFrameImages(): FrameImageState {
 
     async function loadFrames() {
       try {
-        const response = await fetch('/age-frames/manifest.json', { signal: controller.signal })
+        const response = await fetch('/year-frames/manifest.json', { signal: controller.signal })
         if (!response.ok) throw new Error(`Manifest request failed (${response.status})`)
         const manifest = parseManifest(await response.json())
         if (disposed) return
@@ -59,7 +59,7 @@ export function useFrameImages(): FrameImageState {
             if (!disposed) {
               setState((previous) => {
                 const loaded = new Map(previous.loaded)
-                loaded.set(first.age, { entry: first, image })
+                loaded.set(first.year, { entry: first, image })
                 return { ...previous, loaded, loading: false }
               })
             }
@@ -67,7 +67,7 @@ export function useFrameImages(): FrameImageState {
             if (!disposed) {
               setState((previous) => ({
                 ...previous,
-                failedAges: [...previous.failedAges, first.age],
+                failedYears: [...previous.failedYears, first.year],
               }))
             }
           }
@@ -80,7 +80,7 @@ export function useFrameImages(): FrameImageState {
               if (!disposed) {
                 setState((previous) => {
                   const loaded = new Map(previous.loaded)
-                  loaded.set(entry.age, { entry, image })
+                  loaded.set(entry.year, { entry, image })
                   return { ...previous, loaded }
                 })
               }
@@ -88,9 +88,9 @@ export function useFrameImages(): FrameImageState {
               if (!disposed) {
                 setState((previous) => ({
                   ...previous,
-                  failedAges: previous.failedAges.includes(entry.age)
-                    ? previous.failedAges
-                    : [...previous.failedAges, entry.age],
+                  failedYears: previous.failedYears.includes(entry.year)
+                    ? previous.failedYears
+                    : [...previous.failedYears, entry.year],
                 }))
               }
             }
@@ -102,7 +102,7 @@ export function useFrameImages(): FrameImageState {
         setState((previous) => ({
           ...previous,
           loading: false,
-          error: error instanceof Error ? error.message : 'Unable to load age frames',
+          error: error instanceof Error ? error.message : 'Unable to load year frames',
         }))
       }
     }

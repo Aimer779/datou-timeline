@@ -10,25 +10,25 @@ function frameState(error: string | null): FrameImageState {
     loaded: new Map(),
     loading: false,
     error,
-    failedAges: [],
+    failedYears: [],
   }
 }
 
 describe('FaceCanvas terminal fallback', () => {
   it('replaces a misleading empty image canvas when no portrait can load', () => {
     const html = renderToStaticMarkup(
-      <FaceCanvas age={5} mode="mono" frames={frameState('No age portraits could be loaded')} />,
+      <FaceCanvas year={1995} mode="mono" frames={frameState('No year portraits could be loaded')} />,
     )
 
     expect(html).toContain('portrait-unavailable')
-    expect(html).toContain('Portrait unavailable')
+    expect(html).toContain('人物图像暂不可用')
     expect(html).not.toContain('<canvas')
     expect(html).not.toContain('role="img"')
   })
 
   it('retains the portrait canvas outside the terminal error state', () => {
     const html = renderToStaticMarkup(
-      <FaceCanvas age={5} mode="mono" frames={frameState(null)} />,
+      <FaceCanvas year={1995} mode="mono" frames={frameState(null)} />,
     )
 
     expect(html).toContain('<canvas')

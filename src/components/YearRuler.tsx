@@ -1,34 +1,34 @@
 import { useEffect, useRef } from 'react'
 import {
-  ageFromDragDelta,
-  ageFromRulerOffset,
-  clampAge,
-  MAX_AGE,
-  MIN_AGE,
-  nearestAge,
-} from '../age'
+  yearFromDragDelta,
+  yearFromRulerOffset,
+  clampYear,
+  MAX_YEAR,
+  MIN_YEAR,
+  nearestYear,
+} from '../year'
 
-interface AgeRulerProps {
-  age: number
-  onAgeChange: (age: number, cause: 'drag' | 'click' | 'keyboard') => void
+interface YearRulerProps {
+  year: number
+  onYearChange: (year: number, cause: 'drag' | 'click' | 'keyboard') => void
 }
 
 const TICK_SPACING = 20
 const PEAK_TICK_HEIGHT = 80
-const TICKS = Array.from({ length: MAX_AGE - MIN_AGE + 1 }, (_, index) => MIN_AGE + index)
+const TICKS = Array.from({ length: MAX_YEAR - MIN_YEAR + 1 }, (_, index) => MIN_YEAR + index)
 
 function prefersReducedMotion(): boolean {
   return typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 }
 
-export function AgeRuler({ age, onAgeChange }: AgeRulerProps) {
+export function YearRuler({ year, onYearChange }: YearRulerProps) {
   const rulerRef = useRef<HTMLDivElement>(null)
   const pointerRef = useRef<{
     id: number
     startX: number
-    startAge: number
+    startYear: number
     moved: boolean
-  }>({ id: -1, startX: 0, startAge: MIN_AGE, moved: false })
+  }>({ id: -1, startX: 0, startYear: MIN_YEAR, moved: false })
   const animationRef = useRef<number | null>(null)
 
   useEffect(() => {
@@ -43,27 +43,27 @@ export function AgeRuler({ age, onAgeChange }: AgeRulerProps) {
     animationRef.current = null
   }
 
-  const ageAtClientX = (clientX: number) => {
+  const yearAtClientX = (clientX: number) => {
     const element = rulerRef.current
-    if (!element) return age
+    if (!element) return year
     const rect = element.getBoundingClientRect()
-    return ageFromRulerOffset(age, clientX - (rect.left + rect.width / 2), TICK_SPACING)
+    return yearFromRulerOffset(year, clientX - (rect.left + rect.width / 2), TICK_SPACING)
   }
 
   const animateTo = (target: number) => {
-    const next = clampAge(target)
+    const next = clampYear(target)
     if (prefersReducedMotion()) {
-      onAgeChange(next, 'click')
+      onYearChange(next, 'click')
       return
     }
     cancelActiveAnimation()
     const start = performance.now()
-    const from = age
+    const from = year
     const duration = 160
     const tick = (now: number) => {
       const progress = Math.min(1, (now - start) / duration)
       const eased = 1 - (1 - progress) ** 3
-      onAgeChange(from + (next - from) * eased, 'click')
+      onYearChange(from + (next - from) * eased, 'click')
       if (progress < 1) animationRef.current = requestAnimationFrame(tick)
       else animationRef.current = null
     }
@@ -75,7 +75,7 @@ export function AgeRuler({ age, onAgeChange }: AgeRulerProps) {
     pointerRef.current = {
       id: event.pointerId,
       startX: event.clientX,
-      startAge: age,
+      startYear: year,
       moved: false,
     }
     event.currentTarget.setPointerCapture(event.pointerId)
@@ -87,8 +87,8 @@ export function AgeRuler({ age, onAgeChange }: AgeRulerProps) {
     if (pointer.id !== event.pointerId) return
     if (!pointer.moved && Math.abs(event.clientX - pointer.startX) < 3) return
     pointer.moved = true
-    onAgeChange(
-      ageFromDragDelta(pointer.startAge, event.clientX - pointer.startX, TICK_SPACING),
+    onYearChange(
+      yearFromDragDelta(pointer.startYear, event.clientX - pointer.startX, TICK_SPACING),
       'drag',
     )
   }
@@ -96,8 +96,8 @@ export function AgeRuler({ age, onAgeChange }: AgeRulerProps) {
   const handlePointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
     const pointer = pointerRef.current
     if (pointer.id !== event.pointerId) return
-    if (!pointer.moved) animateTo(ageAtClientX(event.clientX))
-    pointerRef.current = { id: -1, startX: 0, startAge: age, moved: false }
+    if (!pointer.moved) animateTo(yearAtClientX(event.clientX))
+    pointerRef.current = { id: -1, startX: 0, startYear: year, moved: false }
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId)
     }
@@ -105,22 +105,22 @@ export function AgeRuler({ age, onAgeChange }: AgeRulerProps) {
 
   const handlePointerCancel = (event: React.PointerEvent<HTMLDivElement>) => {
     if (pointerRef.current.id !== event.pointerId) return
-    pointerRef.current = { id: -1, startX: 0, startAge: age, moved: false }
+    pointerRef.current = { id: -1, startX: 0, startYear: year, moved: false }
   }
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
     const step = event.shiftKey ? 5 : 1
     let next: number | null = null
-    if (event.key === 'ArrowLeft' || event.key === 'ArrowDown') next = age - step
-    if (event.key === 'ArrowRight' || event.key === 'ArrowUp') next = age + step
-    if (event.key === 'PageDown') next = age - 10
-    if (event.key === 'PageUp') next = age + 10
-    if (event.key === 'Home') next = MIN_AGE
-    if (event.key === 'End') next = MAX_AGE
+    if (event.key === 'ArrowLeft' || event.key === 'ArrowDown') next = year - step
+    if (event.key === 'ArrowRight' || event.key === 'ArrowUp') next = year + step
+    if (event.key === 'PageDown') next = year - 10
+    if (event.key === 'PageUp') next = year + 10
+    if (event.key === 'Home') next = MIN_YEAR
+    if (event.key === 'End') next = MAX_YEAR
     if (next === null) return
     cancelActiveAnimation()
     event.preventDefault()
-    onAgeChange(nearestAge(next), 'keyboard')
+    onYearChange(nearestYear(next), 'keyboard')
   }
 
   return (
@@ -130,12 +130,12 @@ export function AgeRuler({ age, onAgeChange }: AgeRulerProps) {
         className="ruler-viewport"
         role="slider"
         tabIndex={0}
-        aria-label="Age"
+        aria-label="作品年份"
         aria-orientation="horizontal"
-        aria-valuemin={MIN_AGE}
-        aria-valuemax={MAX_AGE}
-        aria-valuenow={Math.round(clampAge(age))}
-        aria-valuetext={`Age ${Math.round(clampAge(age))}`}
+        aria-valuemin={MIN_YEAR}
+        aria-valuemax={MAX_YEAR}
+        aria-valuenow={Math.round(clampYear(year))}
+        aria-valuetext={`${Math.round(clampYear(year))} 年`}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
@@ -143,7 +143,7 @@ export function AgeRuler({ age, onAgeChange }: AgeRulerProps) {
         onKeyDown={handleKeyDown}
       >
         {TICKS.map((tick) => {
-          const distance = Math.abs(tick - age)
+          const distance = Math.abs(tick - year)
           const profile = 1 / (1 + (distance / 4.5) ** 2)
           return (
             <span
@@ -151,7 +151,7 @@ export function AgeRuler({ age, onAgeChange }: AgeRulerProps) {
               className="ruler-tick"
               key={tick}
               style={{
-                left: `calc(50% + ${(tick - age) * TICK_SPACING}px)`,
+                left: `calc(50% + ${(tick - year) * TICK_SPACING}px)`,
                 opacity: distance < 0.45 ? 0 : 0.18 + profile * 0.62,
                 height: `${profile * PEAK_TICK_HEIGHT}px`,
               }}

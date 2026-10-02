@@ -118,7 +118,7 @@ button {
   width: 100%;
 }
 
-.age-readout {
+.year-readout {
   background: #050505;
   border-radius: 999px;
   color: #fff;
@@ -133,6 +133,16 @@ button {
   color: #996648;
   font-size: 12px;
   margin: 14px 0 0;
+  text-align: center;
+}
+
+.work-caption {
+  color: #888;
+  font-size: 12px;
+  line-height: 1.6;
+  min-height: 20px;
+  margin: 12px 0 26px;
+  max-width: 90vw;
   text-align: center;
 }
 
@@ -231,7 +241,8 @@ button {
   text-align: center;
   text-transform: uppercase;
   transform: translateX(-50%);
-  white-space: nowrap;
+  width: calc(100% - 32px);
+  line-height: 1.6;
 }
 
 .sr-only {
@@ -258,7 +269,7 @@ button {
     width: min(68vw, 300px);
   }
 
-  .age-readout {
+  .year-readout {
     margin-top: 3vh;
   }
 

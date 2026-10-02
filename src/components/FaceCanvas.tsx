@@ -1,26 +1,26 @@
 import { useCallback, useEffect, useRef } from 'react'
-import { getAdjacentFrames } from '../age'
+import { getAdjacentFrames } from '../year'
 import type { DisplayMode, LoadedFrame } from '../types'
 import type { FrameImageState } from '../hooks/useFrameImages'
 
 interface FaceCanvasProps {
-  age: number
+  year: number
   mode: DisplayMode
   frames: FrameImageState
 }
 
 function nearestLoaded(
-  age: number,
+  year: number,
   frames: FrameImageState,
 ): LoadedFrame | null {
   if (!frames.manifest) return null
   return frames.manifest.frames
-    .map((entry) => frames.loaded.get(entry.age))
+    .map((entry) => frames.loaded.get(entry.year))
     .filter((frame): frame is LoadedFrame => Boolean(frame))
-    .sort((a, b) => Math.abs(a.entry.age - age) - Math.abs(b.entry.age - age))[0] ?? null
+    .sort((a, b) => Math.abs(a.entry.year - year) - Math.abs(b.entry.year - year))[0] ?? null
 }
 
-export function FaceCanvas({ age, mode, frames }: FaceCanvasProps) {
+export function FaceCanvas({ year, mode, frames }: FaceCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   const unavailable = Boolean(frames.error) && frames.loaded.size === 0
@@ -47,17 +47,19 @@ export function FaceCanvas({ age, mode, frames }: FaceCanvasProps) {
     context.imageSmoothingQuality = 'high'
     context.filter = mode === 'mono' ? 'grayscale(1)' : 'none'
 
-    const adjacent = frames.manifest ? getAdjacentFrames(age, frames.manifest.frames) : null
-    const lower = adjacent ? frames.loaded.get(adjacent.lower.age) : null
-    const upper = adjacent ? frames.loaded.get(adjacent.upper.age) : null
-    const fallback = nearestLoaded(age, frames)
+    const adjacent = frames.manifest ? getAdjacentFrames(year, frames.manifest.frames) : null
+    const lower = adjacent ? frames.loaded.get(adjacent.lower.year) : null
+    const upper = adjacent ? frames.loaded.get(adjacent.upper.year) : null
+    const fallback = nearestLoaded(year, frames)
     const drawImage = (frame: LoadedFrame, alpha: number) => {
       context.globalAlpha = alpha
       context.drawImage(frame.image, 0, 0, rect.width, rect.height)
     }
 
-    if (lower && upper && lower.entry.age !== upper.entry.age && adjacent) {
+    if (lower && upper && lower.entry.year !== upper.entry.year && adjacent) {
       drawImage(lower, 1 - adjacent.ratio)
+      // Add premultiplied colors so transparent portraits do not dim mid-transition.
+      context.globalCompositeOperation = 'lighter'
       drawImage(upper, adjacent.ratio)
     } else if (lower) {
       drawImage(lower, 1)
@@ -67,7 +69,7 @@ export function FaceCanvas({ age, mode, frames }: FaceCanvasProps) {
       drawImage(fallback, 1)
     }
     context.restore()
-  }, [age, frames, mode])
+  }, [year, frames, mode])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -81,7 +83,7 @@ export function FaceCanvas({ age, mode, frames }: FaceCanvasProps) {
   if (unavailable) {
     return (
       <div className="portrait-unavailable" aria-hidden="true">
-        <span>Portrait unavailable</span>
+        <span>人物图像暂不可用</span>
       </div>
     )
   }
@@ -91,7 +93,7 @@ export function FaceCanvas({ age, mode, frames }: FaceCanvasProps) {
       ref={canvasRef}
       className="face-canvas"
       role="img"
-      aria-label={`Illustrated face at age ${Math.round(age)}`}
+      aria-label={`${Math.round(year)} 年的大头儿子正面头像`}
     />
   )
 }
