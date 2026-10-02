@@ -1,4 +1,4 @@
-import { useCallback, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { clampPosition, formatPosition, MIN_POSITION, getAdjacentFrames } from './timeline'
 import { TimelineRuler } from './components/TimelineRuler'
 import { FaceCanvas } from './components/FaceCanvas'
@@ -6,6 +6,7 @@ import { ModeSwitch } from './components/ModeSwitch'
 import { useFrameImages } from './hooks/useFrameImages'
 import type { DisplayMode } from './types'
 import { describeYear } from './works'
+import { useSoundFeedback } from './hooks/useSoundFeedback'
 
 const HINT_STORAGE_KEY = 'datou-timeline-hint-seen'
 
@@ -27,6 +28,8 @@ function markHintSeen() {
 
 export default function App() {
   const [position, setPosition] = useState<number>(MIN_POSITION)
+  const { enabled: soundEnabled, toggle: toggleSound, sound } = useSoundFeedback()
+  const lastSoundPosition = useRef<number>(MIN_POSITION)
   const frames = useFrameImages(position)
   const pair = frames.manifest ? getAdjacentFrames(position, frames.manifest.frames) : null
   const required = pair ? (pair.ratio === 0 ? [pair.lower] : pair.ratio === 1 ? [pair.upper] : [pair.lower, pair.upper]) : []
@@ -36,6 +39,12 @@ export default function App() {
   const [hintVisible, setHintVisible] = useState(readHintVisibility)
 
   const handlePositionChange = useCallback((nextPosition: number, cause: 'drag' | 'click' | 'keyboard') => {
+    const rounded = Math.round(clampPosition(nextPosition))
+    if (rounded !== lastSoundPosition.current) {
+      lastSoundPosition.current = rounded
+      if (cause === 'keyboard') sound.gesture('tick')
+      else sound.play('tick')
+    }
     setPosition(clampPosition(nextPosition))
     if (cause === 'drag' || cause === 'click' || cause === 'keyboard') {
       setHintVisible((visible) => {
@@ -43,12 +52,20 @@ export default function App() {
         return false
       })
     }
-  }, [])
+  }, [sound])
 
   return (
     <div className="app-shell">
       <header className="topbar">
-        <ModeSwitch mode={mode} onModeChange={setMode} />
+        <button className="sound-button" type="button" aria-label="交互音效"
+          aria-pressed={soundEnabled} onClick={toggleSound}>
+          音效：{soundEnabled ? '开' : '关'}
+        </button>
+        <ModeSwitch mode={mode} onModeChange={next => {
+          if (next === mode) return
+          sound.gesture(next)
+          setMode(next)
+        }} />
       </header>
 
       <main className="main-content">
@@ -77,7 +94,8 @@ export default function App() {
             <span className="hint-dot" aria-hidden="true" />
             左右拖动，松手停在整年
           </div>
-          <TimelineRuler position={position} onPositionChange={handlePositionChange} />
+          <TimelineRuler position={position} onPositionChange={handlePositionChange}
+            onInteractionStart={() => { void sound.unlock() }} />
           <p className="sr-only" id="timeline-help">
             方向键逐年切换，2026 年后是同年成年形象。Shift 加方向键跨五格，Page Up 和 Page Down 跨十格，Home 和 End 到达首尾。
           </p>

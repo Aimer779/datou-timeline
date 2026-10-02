@@ -13,6 +13,7 @@ import {
 } from '../timeline'
 
 interface TimelineRulerProps {
+  onInteractionStart: () => void
   position: number
   onPositionChange: (position: number, cause: 'drag' | 'click' | 'keyboard') => void
 }
@@ -25,7 +26,7 @@ function prefersReducedMotion(): boolean {
   return typeof window !== 'undefined' && window.matchMedia('(prefers-reduced-motion: reduce)').matches
 }
 
-export function TimelineRuler({ position, onPositionChange }: TimelineRulerProps) {
+export function TimelineRuler({ position, onPositionChange, onInteractionStart }: TimelineRulerProps) {
   const rulerRef = useRef<HTMLDivElement>(null)
   const [dragging, setDragging] = useState(false)
   const latestPosition = useRef(position)
@@ -89,6 +90,7 @@ export function TimelineRuler({ position, onPositionChange }: TimelineRulerProps
 
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     if (!event.isPrimary || event.button !== 0 || pointerRef.current.id !== -1) return
+    onInteractionStart()
     cancelActiveAnimation()
     setDragging(true)
     pointerRef.current = {

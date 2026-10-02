@@ -34,11 +34,28 @@ button {
 }
 
 .topbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
   position: absolute;
   right: 18px;
   top: 18px;
   z-index: 2;
 }
+
+.sound-button {
+  appearance: none;
+  border: 0;
+  background: transparent;
+  color: #727270;
+  font-size: 12px;
+  min-height: 34px;
+  padding: 4px;
+  transition: color 160ms ease;
+}
+
+.sound-button:hover { color: #24231f; }
+.sound-button:focus-visible { outline: 2px solid #777; outline-offset: 2px; }
 
 .mode-switch {
   --segment-width: 58px;
