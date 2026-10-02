@@ -6,7 +6,7 @@
 - Cloudflare Pages：https://datou-timeline.pages.dev/
 - 源码：https://github.com/Aimer779/datou-timeline
 
-![页面预览](artifacts/datou-validation/slim-switch.png)
+![页面预览](artifacts/datou-validation/cloudflare-live.png)
 
 ## 体验
 
