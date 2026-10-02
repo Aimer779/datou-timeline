@@ -7,7 +7,7 @@ interface ModeSwitchProps {
 
 export function ModeSwitch({ mode, onModeChange }: ModeSwitchProps) {
   return (
-    <div className="mode-switch" role="group" aria-label="头像色彩模式">
+    <div className="mode-switch" data-mode={mode} role="group" aria-label="头像色彩模式">
       <button
         className={mode === 'mono' ? 'mode-button mode-button--active' : 'mode-button'}
         type="button"

@@ -52,10 +52,10 @@ export default function App() {
           <div className="portrait-frame">
             <FaceCanvas position={position} mode={mode} frames={frames} />
           </div>
-          <div className="year-readout" aria-live="polite">
+          <div className="year-readout">
             年份：{formatPosition(position)}
           </div>
-          <p className="work-caption" aria-live="polite">{describeYear(position)}</p>
+          <p className="work-caption">{describeYear(position)}</p>
           {frames.error ? (
             <p className="asset-status" role="status">
               人物图像暂时无法加载，请刷新重试。
@@ -70,10 +70,10 @@ export default function App() {
         <section className="controls-panel" aria-label="作品年份导航">
           <div className={`hint${hintVisible ? '' : ' hint--hidden'}`} aria-hidden={!hintVisible}>
             <span className="hint-dot" aria-hidden="true" />
-            拖动，回看每一年的大头儿子
+            左右拖动，松手停在整年
           </div>
           <TimelineRuler position={position} onPositionChange={handlePositionChange} />
-          <p className="sr-only">
+          <p className="sr-only" id="timeline-help">
             方向键逐年切换，2026 年后是同年成年形象。Shift 加方向键跨五格，Page Up 和 Page Down 跨十格，Home 和 End 到达首尾。
           </p>
         </section>

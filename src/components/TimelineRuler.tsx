@@ -1,4 +1,7 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
+import { animateValue } from '../motion'
+import { describeYear } from '../works'
+import { NODE_POSITIONS } from '../types'
 import {
   positionFromDragDelta,
   positionFromRulerOffset,
@@ -24,63 +27,78 @@ function prefersReducedMotion(): boolean {
 
 export function TimelineRuler({ position, onPositionChange }: TimelineRulerProps) {
   const rulerRef = useRef<HTMLDivElement>(null)
+  const [dragging, setDragging] = useState(false)
+  const latestPosition = useRef(position)
+  const latestChange = useRef(onPositionChange)
+  latestPosition.current = position
+  latestChange.current = onPositionChange
   const pointerRef = useRef<{
     id: number
     startX: number
     startPosition: number
     moved: boolean
   }>({ id: -1, startX: 0, startPosition: MIN_POSITION, moved: false })
-  const animationRef = useRef<number | null>(null)
+  const animationRef = useRef<() => void>(() => {})
+  const targetRef = useRef<number | null>(null)
 
   useEffect(() => {
+    const media = window.matchMedia('(prefers-reduced-motion: reduce)')
+    const stopMotion = () => {
+      if (!media.matches || targetRef.current === null) return
+      animationRef.current()
+      const target = targetRef.current
+      targetRef.current = null
+      latestPosition.current = target
+      latestChange.current(target, 'click')
+    }
+    media.addEventListener('change', stopMotion)
     return () => {
-      if (animationRef.current !== null) cancelAnimationFrame(animationRef.current)
+      animationRef.current()
+      media.removeEventListener('change', stopMotion)
     }
   }, [])
 
   const cancelActiveAnimation = () => {
-    if (animationRef.current === null) return
-    cancelAnimationFrame(animationRef.current)
-    animationRef.current = null
+    animationRef.current()
+    targetRef.current = null
+  }
+
+  const publish = (next: number, cause: 'drag' | 'click' | 'keyboard') => {
+    latestPosition.current = next
+    onPositionChange(next, cause)
   }
 
   const positionAtClientX = (clientX: number) => {
     const element = rulerRef.current
     if (!element) return position
     const rect = element.getBoundingClientRect()
-    return positionFromRulerOffset(position, clientX - (rect.left + rect.width / 2), TICK_SPACING)
+    return positionFromRulerOffset(latestPosition.current, clientX - (rect.left + rect.width / 2), TICK_SPACING)
   }
 
-  const animateTo = (target: number) => {
-    const next = clampPosition(target)
-    if (prefersReducedMotion()) {
-      onPositionChange(next, 'click')
-      return
-    }
+  const animateTo = (target: number, cause: 'drag' | 'click' = 'click') => {
     cancelActiveAnimation()
-    const start = performance.now()
-    const from = position
-    const duration = 160
-    const tick = (now: number) => {
-      const progress = Math.min(1, (now - start) / duration)
-      const eased = 1 - (1 - progress) ** 3
-      onPositionChange(from + (next - from) * eased, 'click')
-      if (progress < 1) animationRef.current = requestAnimationFrame(tick)
-      else animationRef.current = null
-    }
-    animationRef.current = requestAnimationFrame(tick)
+    const next = nearestPosition(target)
+    targetRef.current = next
+    animationRef.current = animateValue(latestPosition.current, next,
+      prefersReducedMotion() ? 0 : cause === 'drag' ? 100 : 160,
+      (value) => {
+        publish(value, cause)
+        if (value === next) targetRef.current = null
+      })
   }
 
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    if (!event.isPrimary || event.button !== 0 || pointerRef.current.id !== -1) return
     cancelActiveAnimation()
+    setDragging(true)
     pointerRef.current = {
       id: event.pointerId,
       startX: event.clientX,
-      startPosition: position,
+      startPosition: latestPosition.current,
       moved: false,
     }
     event.currentTarget.setPointerCapture(event.pointerId)
-    event.currentTarget.focus()
+    event.currentTarget.focus({ preventScroll: true })
   }
 
   const handlePointerMove = (event: React.PointerEvent<HTMLDivElement>) => {
@@ -88,7 +106,7 @@ export function TimelineRuler({ position, onPositionChange }: TimelineRulerProps
     if (pointer.id !== event.pointerId) return
     if (!pointer.moved && Math.abs(event.clientX - pointer.startX) < 3) return
     pointer.moved = true
-    onPositionChange(
+    publish(
       positionFromDragDelta(pointer.startPosition, event.clientX - pointer.startX, TICK_SPACING),
       'drag',
     )
@@ -98,6 +116,9 @@ export function TimelineRuler({ position, onPositionChange }: TimelineRulerProps
     const pointer = pointerRef.current
     if (pointer.id !== event.pointerId) return
     if (!pointer.moved) animateTo(positionAtClientX(event.clientX))
+    else animateTo(positionFromDragDelta(pointer.startPosition,
+      event.clientX - pointer.startX, TICK_SPACING), 'drag')
+    setDragging(false)
     pointerRef.current = { id: -1, startX: 0, startPosition: position, moved: false }
     if (event.currentTarget.hasPointerCapture(event.pointerId)) {
       event.currentTarget.releasePointerCapture(event.pointerId)
@@ -106,10 +127,14 @@ export function TimelineRuler({ position, onPositionChange }: TimelineRulerProps
 
   const handlePointerCancel = (event: React.PointerEvent<HTMLDivElement>) => {
     if (pointerRef.current.id !== event.pointerId) return
+    cancelActiveAnimation()
+    setDragging(false)
+    publish(nearestPosition(latestPosition.current), 'drag')
     pointerRef.current = { id: -1, startX: 0, startPosition: position, moved: false }
   }
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (pointerRef.current.id !== -1) return
     const step = event.shiftKey ? 5 : 1
     let next: number | null = null
     if (event.key === 'ArrowLeft' || event.key === 'ArrowDown') next = position - step
@@ -121,7 +146,7 @@ export function TimelineRuler({ position, onPositionChange }: TimelineRulerProps
     if (next === null) return
     cancelActiveAnimation()
     event.preventDefault()
-    onPositionChange(nearestPosition(next), 'keyboard')
+    publish(nearestPosition(next), 'keyboard')
   }
 
   return (
@@ -129,18 +154,21 @@ export function TimelineRuler({ position, onPositionChange }: TimelineRulerProps
       <div
         ref={rulerRef}
         className="ruler-viewport"
+        data-dragging={dragging}
         role="slider"
         tabIndex={0}
         aria-label="作品年份"
         aria-orientation="horizontal"
         aria-valuemin={MIN_POSITION}
         aria-valuemax={MAX_POSITION}
-        aria-valuenow={Math.round(clampPosition(position))}
-        aria-valuetext={formatPosition(position)}
+        aria-valuenow={clampPosition(position)}
+        aria-valuetext={`${formatPosition(position)}，${describeYear(position)}`}
+        aria-describedby="timeline-help"
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerUp}
         onPointerCancel={handlePointerCancel}
+        onLostPointerCapture={handlePointerCancel}
         onKeyDown={handleKeyDown}
       >
         {TICKS.map((tick) => {
@@ -149,7 +177,7 @@ export function TimelineRuler({ position, onPositionChange }: TimelineRulerProps
           return (
             <span
               aria-hidden="true"
-              className="ruler-tick"
+              className={`ruler-tick${(NODE_POSITIONS as readonly number[]).includes(tick) ? ' ruler-tick--work' : ''}`}
               key={tick}
               style={{
                 left: `calc(50% + ${(tick - position) * TICK_SPACING}px)`,

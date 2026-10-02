@@ -45,7 +45,6 @@ export function FaceCanvas({ position, mode, frames }: FaceCanvasProps) {
     context.scale(dpr, dpr)
     context.imageSmoothingEnabled = true
     context.imageSmoothingQuality = 'high'
-    context.filter = mode === 'mono' ? 'grayscale(1)' : 'none'
 
     const adjacent = frames.manifest ? getAdjacentFrames(position, frames.manifest.frames) : null
     const lower = adjacent ? frames.loaded.get(adjacent.lower.position) : null
@@ -69,7 +68,7 @@ export function FaceCanvas({ position, mode, frames }: FaceCanvasProps) {
       drawImage(fallback, 1)
     }
     context.restore()
-  }, [position, frames, mode])
+  }, [position, frames])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -92,6 +91,7 @@ export function FaceCanvas({ position, mode, frames }: FaceCanvasProps) {
     <canvas
       ref={canvasRef}
       className="face-canvas"
+      data-mode={mode}
       role="img"
       aria-label={`${formatPosition(position)} 的大头儿子正面头像`}
     />
