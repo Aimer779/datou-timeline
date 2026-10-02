@@ -8,63 +8,80 @@
       "year": 1995,
       "width": 1254,
       "sha256": "61c68905c97460584548372ac6e340fbb73e25e15533fd1503d8b095440a2070",
-      "file": "year-1995.png"
+      "file": "year-1995.png",
+      "position": 1995
     },
     {
       "height": 1254,
       "year": 2013,
       "width": 1254,
       "sha256": "e400ab163c8a5fe4d6d5ebadd2f46779a41d5bff3983410424e7cdc9f67c9356",
-      "file": "year-2013.png"
+      "file": "year-2013.png",
+      "position": 2013
     },
     {
       "height": 1254,
       "year": 2014,
       "width": 1254,
       "sha256": "a1818b603df8f942be76f6bec27cfe3bd2a6ff085286f777856c990300e42f74",
-      "file": "year-2014.png"
+      "file": "year-2014.png",
+      "position": 2014
     },
     {
       "height": 1254,
       "year": 2016,
       "width": 1254,
       "sha256": "d11252e0575deb49d385606c71cf944f3c009e3a0b0e50d054b7a70729ae9d5b",
-      "file": "year-2016.png"
+      "file": "year-2016.png",
+      "position": 2016
     },
     {
       "height": 1254,
       "year": 2018,
       "width": 1254,
       "sha256": "1d7c32f7370ba4d1168707f3a0f9a19aeda7c58e7699f96452940d105e75e8d6",
-      "file": "year-2018.png"
+      "file": "year-2018.png",
+      "position": 2018
     },
     {
       "height": 1254,
       "year": 2021,
       "width": 1254,
       "sha256": "a3078f60d7f3a43ec7aa35a90c0efc61cb1db5b0f0cc81c6d5f035295e7d3830",
-      "file": "year-2021.png"
+      "file": "year-2021.png",
+      "position": 2021
     },
     {
       "height": 1254,
       "year": 2022,
       "width": 1254,
       "sha256": "24fa0e25f3ddb36ede443244b7d30935713a0f6fc3ebaab34a4fa4a596eaa605",
-      "file": "year-2022.png"
+      "file": "year-2022.png",
+      "position": 2022
     },
     {
       "height": 1254,
       "year": 2024,
       "width": 1254,
       "sha256": "cbdda38ef56cea49d4e96ab4c28dd1634d6e7258c4441ad67ab18410e7fe5564",
-      "file": "year-2024.png"
+      "file": "year-2024.png",
+      "position": 2024
     },
     {
       "height": 1254,
       "year": 2026,
       "width": 1254,
       "sha256": "9bbff8c2909b02a21962e1cab8cfff0ab659321f0c59fbc09c65fa6894c1f4a1",
-      "file": "year-2026.png"
+      "file": "year-2026.png",
+      "position": 2026
+    },
+    {
+      "width": 1254,
+      "year": 2026,
+      "height": 1254,
+      "file": "year-2026-adult.png",
+      "position": 2027,
+      "sha256": "b329122b95121f5fbd781778ec52da426fa6b3b6044a151721d9dbd9ea14fc55"
     }
   ]
 }

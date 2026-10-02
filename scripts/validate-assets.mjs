@@ -5,7 +5,7 @@ import { fileURLToPath } from 'node:url'
 
 const root = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
 const assetRoot = path.join(root, 'public', 'year-frames')
-const expectedYears = [1995, 2013, 2014, 2016, 2018, 2021, 2022, 2024, 2026]
+const expectedPositions = [1995, 2013, 2014, 2016, 2018, 2021, 2022, 2024, 2026, 2027]
 const failures = []
 const fail = (message) => failures.push(message)
 const manifest = JSON.parse(await readFile(path.join(assetRoot, 'manifest.json'), 'utf8'))
@@ -15,14 +15,15 @@ if (manifest.version !== 1 || manifest.width !== 1254 || manifest.height !== 125
 }
 const frames = manifest.frames
 if (!Array.isArray(frames)) throw new Error('Missing frames')
-const years = frames.map((frame) => frame.year)
-if (frames.length !== expectedYears.length || expectedYears.some((year) => !years.includes(year))) {
-  fail('Expected exactly the nine catalog years')
+const positions = frames.map((frame) => frame.position)
+if (frames.length !== expectedPositions.length || expectedPositions.some((position) => !positions.includes(position))) {
+  fail('Expected ten portraits across nine catalog years')
 }
-if (new Set(years).size !== frames.length) fail('Duplicate years')
+if (new Set(positions).size !== frames.length) fail('Duplicate positions')
 if (new Set(frames.map((frame) => frame.file)).size !== frames.length) fail('Duplicate files')
 
 for (const frame of frames) {
+  if (frame.year !== Math.min(frame.position, 2026)) fail(`${frame.file}: invalid position/year pairing`)
   if (!/^[\w-]+\.png$/.test(frame.file)) {
     fail(`Unsafe filename: ${frame.file}`)
     continue

@@ -1,6 +1,6 @@
 import { useCallback, useState } from 'react'
-import { clampYear, formatYear, MIN_YEAR } from './year'
-import { YearRuler } from './components/YearRuler'
+import { clampPosition, formatPosition, MIN_POSITION } from './timeline'
+import { TimelineRuler } from './components/TimelineRuler'
 import { FaceCanvas } from './components/FaceCanvas'
 import { ModeSwitch } from './components/ModeSwitch'
 import { useFrameImages } from './hooks/useFrameImages'
@@ -27,12 +27,12 @@ function markHintSeen() {
 
 export default function App() {
   const frames = useFrameImages()
-  const [year, setYear] = useState<number>(MIN_YEAR)
+  const [position, setPosition] = useState<number>(MIN_POSITION)
   const [mode, setMode] = useState<DisplayMode>('mono')
   const [hintVisible, setHintVisible] = useState(readHintVisibility)
 
-  const handleYearChange = useCallback((nextYear: number, cause: 'drag' | 'click' | 'keyboard') => {
-    setYear(clampYear(nextYear))
+  const handlePositionChange = useCallback((nextPosition: number, cause: 'drag' | 'click' | 'keyboard') => {
+    setPosition(clampPosition(nextPosition))
     if (cause === 'drag' || cause === 'click' || cause === 'keyboard') {
       setHintVisible((visible) => {
         if (visible) markHintSeen()
@@ -50,19 +50,19 @@ export default function App() {
       <main className="main-content">
         <section className="portrait-panel" aria-label="大头儿子作品形象变迁">
           <div className="portrait-frame">
-            <FaceCanvas year={year} mode={mode} frames={frames} />
+            <FaceCanvas position={position} mode={mode} frames={frames} />
           </div>
           <div className="year-readout" aria-live="polite">
-            年份：{formatYear(year)}
+            年份：{formatPosition(position)}
           </div>
-          <p className="work-caption" aria-live="polite">{describeYear(year)}</p>
+          <p className="work-caption" aria-live="polite">{describeYear(position)}</p>
           {frames.error ? (
             <p className="asset-status" role="status">
               人物图像暂时无法加载，请刷新重试。
             </p>
-          ) : frames.failedYears.length > 0 ? (
+          ) : frames.failedPositions.length > 0 ? (
             <p className="asset-status" role="status">
-              {frames.failedYears.length} 张图像加载失败，正在显示最近的可用形象。
+              {frames.failedPositions.length} 张图像加载失败，正在显示最近的可用形象。
             </p>
           ) : null}
         </section>
@@ -72,9 +72,9 @@ export default function App() {
             <span className="hint-dot" aria-hidden="true" />
             拖动，回看每一年的大头儿子
           </div>
-          <YearRuler year={year} onYearChange={handleYearChange} />
+          <TimelineRuler position={position} onPositionChange={handlePositionChange} />
           <p className="sr-only">
-            方向键逐年切换，Shift 加方向键跨五年，Page Up 和 Page Down 跨十年，Home 和 End 到达首尾。
+            方向键逐年切换，2026 年后是同年成年形象。Shift 加方向键跨五格，Page Up 和 Page Down 跨十格，Home 和 End 到达首尾。
           </p>
         </section>
 

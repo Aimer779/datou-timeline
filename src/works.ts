@@ -1,4 +1,4 @@
-import { clampYear } from './year'
+import { clampPosition } from './timeline'
 import { NODE_YEARS, type NodeYear } from './types'
 
 export const WORKS: Record<NodeYear, string> = {
@@ -14,7 +14,11 @@ export const WORKS: Record<NodeYear, string> = {
 }
 
 export function describeYear(value: number): string {
-  const year = clampYear(value)
+  const position = clampPosition(value)
+  if (position > 2026) {
+    return `天眼系列：失控的第七天 · ${position === 2027 ? '成年形象' : '童年 → 成年 · 过渡'}`
+  }
+  const year = position
   const exact = NODE_YEARS.find((node) => Math.abs(node - year) < 0.01)
   if (exact) return WORKS[exact]
   const upperIndex = NODE_YEARS.findIndex((node) => node > year)

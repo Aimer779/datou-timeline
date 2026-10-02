@@ -1,9 +1,13 @@
-import { NODE_YEARS, type YearFrameManifest, type YearFrameManifestEntry, type NodeYear } from './types'
+import { NODE_YEARS, NODE_POSITIONS, type YearFrameManifest, type YearFrameManifestEntry, type NodeYear, type NodePosition } from './types'
 
 const SHA256_PATTERN = /^[a-f0-9]{64}$/i
 
 function isNodeYear(value: unknown): value is NodeYear {
   return typeof value === 'number' && (NODE_YEARS as readonly number[]).includes(value)
+}
+
+function isNodePosition(value: unknown): value is NodePosition {
+  return typeof value === 'number' && (NODE_POSITIONS as readonly number[]).includes(value)
 }
 
 export function parseManifest(value: unknown): YearFrameManifest {
@@ -16,12 +20,12 @@ export function parseManifest(value: unknown): YearFrameManifest {
   if (!Array.isArray(candidate.frames)) throw new Error('manifest frames must be an array')
 
   const frames = candidate.frames.map((frame, index) => validateEntry(frame, index))
-  const years = frames.map((frame) => frame.year)
-  const expected = [...NODE_YEARS]
-  if (frames.length !== expected.length || expected.some((year) => !years.includes(year))) {
-    throw new Error(`manifest must contain exactly years ${expected.join(', ')}`)
+  const positions = frames.map((frame) => frame.position)
+  const expected = [...NODE_POSITIONS]
+  if (frames.length !== expected.length || expected.some((position) => !positions.includes(position))) {
+    throw new Error(`manifest must contain exactly positions ${expected.join(', ')}`)
   }
-  if (new Set(years).size !== years.length) throw new Error('manifest contains duplicate years')
+  if (new Set(positions).size !== positions.length) throw new Error('manifest contains duplicate positions')
   if (new Set(frames.map((frame) => frame.file)).size !== frames.length) {
     throw new Error('manifest contains duplicate files')
   }
@@ -30,7 +34,7 @@ export function parseManifest(value: unknown): YearFrameManifest {
     version: 1,
     width: 1254,
     height: 1254,
-    frames: frames.sort((a, b) => a.year - b.year),
+    frames: frames.sort((a, b) => a.position - b.position),
   }
 }
 
@@ -38,6 +42,9 @@ function validateEntry(value: unknown, index: number): YearFrameManifestEntry {
   if (!value || typeof value !== 'object') throw new Error(`frame ${index} must be an object`)
   const frame = value as Partial<YearFrameManifestEntry>
   if (!isNodeYear(frame.year)) throw new Error(`frame ${index} has an unsupported year`)
+  if (!isNodePosition(frame.position) || frame.year !== Math.min(frame.position, 2026)) {
+    throw new Error(`frame ${index} has an invalid position/year pairing`)
+  }
   if (typeof frame.file !== 'string' || !/^[-\w./]+\.png$/i.test(frame.file)) {
     throw new Error(`frame ${index} file must be a relative PNG path`)
   }
@@ -51,6 +58,7 @@ function validateEntry(value: unknown, index: number): YearFrameManifestEntry {
     throw new Error(`frame ${index} sha256 must be a 64-character hex digest`)
   }
   return {
+    position: frame.position,
     year: frame.year,
     file: frame.file,
     width: 1254,

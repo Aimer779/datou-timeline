@@ -10,14 +10,14 @@ function frameState(error: string | null): FrameImageState {
     loaded: new Map(),
     loading: false,
     error,
-    failedYears: [],
+    failedPositions: [],
   }
 }
 
 describe('FaceCanvas terminal fallback', () => {
   it('replaces a misleading empty image canvas when no portrait can load', () => {
     const html = renderToStaticMarkup(
-      <FaceCanvas year={1995} mode="mono" frames={frameState('No year portraits could be loaded')} />,
+      <FaceCanvas position={1995} mode="mono" frames={frameState('No position portraits could be loaded')} />,
     )
 
     expect(html).toContain('portrait-unavailable')
@@ -28,7 +28,7 @@ describe('FaceCanvas terminal fallback', () => {
 
   it('retains the portrait canvas outside the terminal error state', () => {
     const html = renderToStaticMarkup(
-      <FaceCanvas year={1995} mode="mono" frames={frameState(null)} />,
+      <FaceCanvas position={1995} mode="mono" frames={frameState(null)} />,
     )
 
     expect(html).toContain('<canvas')

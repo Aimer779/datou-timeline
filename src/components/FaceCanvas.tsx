@@ -1,26 +1,26 @@
 import { useCallback, useEffect, useRef } from 'react'
-import { getAdjacentFrames } from '../year'
+import { getAdjacentFrames, formatPosition } from '../timeline'
 import type { DisplayMode, LoadedFrame } from '../types'
 import type { FrameImageState } from '../hooks/useFrameImages'
 
 interface FaceCanvasProps {
-  year: number
+  position: number
   mode: DisplayMode
   frames: FrameImageState
 }
 
 function nearestLoaded(
-  year: number,
+  position: number,
   frames: FrameImageState,
 ): LoadedFrame | null {
   if (!frames.manifest) return null
   return frames.manifest.frames
-    .map((entry) => frames.loaded.get(entry.year))
+    .map((entry) => frames.loaded.get(entry.position))
     .filter((frame): frame is LoadedFrame => Boolean(frame))
-    .sort((a, b) => Math.abs(a.entry.year - year) - Math.abs(b.entry.year - year))[0] ?? null
+    .sort((a, b) => Math.abs(a.entry.position - position) - Math.abs(b.entry.position - position))[0] ?? null
 }
 
-export function FaceCanvas({ year, mode, frames }: FaceCanvasProps) {
+export function FaceCanvas({ position, mode, frames }: FaceCanvasProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   const unavailable = Boolean(frames.error) && frames.loaded.size === 0
@@ -47,16 +47,16 @@ export function FaceCanvas({ year, mode, frames }: FaceCanvasProps) {
     context.imageSmoothingQuality = 'high'
     context.filter = mode === 'mono' ? 'grayscale(1)' : 'none'
 
-    const adjacent = frames.manifest ? getAdjacentFrames(year, frames.manifest.frames) : null
-    const lower = adjacent ? frames.loaded.get(adjacent.lower.year) : null
-    const upper = adjacent ? frames.loaded.get(adjacent.upper.year) : null
-    const fallback = nearestLoaded(year, frames)
+    const adjacent = frames.manifest ? getAdjacentFrames(position, frames.manifest.frames) : null
+    const lower = adjacent ? frames.loaded.get(adjacent.lower.position) : null
+    const upper = adjacent ? frames.loaded.get(adjacent.upper.position) : null
+    const fallback = nearestLoaded(position, frames)
     const drawImage = (frame: LoadedFrame, alpha: number) => {
       context.globalAlpha = alpha
       context.drawImage(frame.image, 0, 0, rect.width, rect.height)
     }
 
-    if (lower && upper && lower.entry.year !== upper.entry.year && adjacent) {
+    if (lower && upper && lower.entry.position !== upper.entry.position && adjacent) {
       drawImage(lower, 1 - adjacent.ratio)
       // Add premultiplied colors so transparent portraits do not dim mid-transition.
       context.globalCompositeOperation = 'lighter'
@@ -69,7 +69,7 @@ export function FaceCanvas({ year, mode, frames }: FaceCanvasProps) {
       drawImage(fallback, 1)
     }
     context.restore()
-  }, [year, frames, mode])
+  }, [position, frames, mode])
 
   useEffect(() => {
     const canvas = canvasRef.current
@@ -93,7 +93,7 @@ export function FaceCanvas({ year, mode, frames }: FaceCanvasProps) {
       ref={canvasRef}
       className="face-canvas"
       role="img"
-      aria-label={`${Math.round(year)} 年的大头儿子正面头像`}
+      aria-label={`${formatPosition(position)} 的大头儿子正面头像`}
     />
   )
 }

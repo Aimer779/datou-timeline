@@ -7,7 +7,7 @@ export interface FrameImageState {
   loaded: ReadonlyMap<number, LoadedFrame>
   loading: boolean
   error: string | null
-  failedYears: readonly number[]
+  failedPositions: readonly number[]
 }
 
 export function finalizeFrameLoading(state: FrameImageState): FrameImageState {
@@ -15,7 +15,7 @@ export function finalizeFrameLoading(state: FrameImageState): FrameImageState {
     return {
       ...state,
       loading: false,
-      error: 'No year portraits could be loaded',
+      error: 'No position portraits could be loaded',
     }
   }
   return { ...state, loading: false }
@@ -37,7 +37,7 @@ export function useFrameImages(): FrameImageState {
     loaded: new Map(),
     loading: true,
     error: null,
-    failedYears: [],
+    failedPositions: [],
   })
 
   useEffect(() => {
@@ -59,7 +59,7 @@ export function useFrameImages(): FrameImageState {
             if (!disposed) {
               setState((previous) => {
                 const loaded = new Map(previous.loaded)
-                loaded.set(first.year, { entry: first, image })
+                loaded.set(first.position, { entry: first, image })
                 return { ...previous, loaded, loading: false }
               })
             }
@@ -67,7 +67,7 @@ export function useFrameImages(): FrameImageState {
             if (!disposed) {
               setState((previous) => ({
                 ...previous,
-                failedYears: [...previous.failedYears, first.year],
+                failedPositions: [...previous.failedPositions, first.position],
               }))
             }
           }
@@ -80,7 +80,7 @@ export function useFrameImages(): FrameImageState {
               if (!disposed) {
                 setState((previous) => {
                   const loaded = new Map(previous.loaded)
-                  loaded.set(entry.year, { entry, image })
+                  loaded.set(entry.position, { entry, image })
                   return { ...previous, loaded }
                 })
               }
@@ -88,9 +88,9 @@ export function useFrameImages(): FrameImageState {
               if (!disposed) {
                 setState((previous) => ({
                   ...previous,
-                  failedYears: previous.failedYears.includes(entry.year)
-                    ? previous.failedYears
-                    : [...previous.failedYears, entry.year],
+                  failedPositions: previous.failedPositions.includes(entry.position)
+                    ? previous.failedPositions
+                    : [...previous.failedPositions, entry.position],
                 }))
               }
             }
@@ -102,7 +102,7 @@ export function useFrameImages(): FrameImageState {
         setState((previous) => ({
           ...previous,
           loading: false,
-          error: error instanceof Error ? error.message : 'Unable to load year frames',
+          error: error instanceof Error ? error.message : 'Unable to load position frames',
         }))
       }
     }
