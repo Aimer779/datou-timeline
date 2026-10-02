@@ -148,8 +148,12 @@ button {
 }
 
 .main-content {
+  display: flex;
+  flex-direction: column;
   margin: 0 auto;
   max-width: 1180px;
+  min-height: calc(100dvh - 36px);
+  width: 100%;
 }
 
 .portrait-panel {
@@ -254,6 +258,7 @@ button {
   max-width: 940px;
   padding: 0 clamp(0px, 2vw, 24px);
   position: relative;
+  width: 100%;
 }
 
 .hint {
@@ -306,12 +311,6 @@ button {
   user-select: none;
 }
 
-.ruler-viewport:focus-visible {
-  outline: 2px solid #777;
-  outline-offset: 4px;
-  border-radius: 4px;
-}
-
 .ruler-viewport:focus-visible .ruler-center {
   box-shadow: 0 0 0 3px #fdfdfd, 0 0 0 5px #999;
 }
@@ -359,17 +358,15 @@ button {
 }
 
 .footer-note {
-  bottom: 18px;
   color: #aaa;
   display: block;
   font-size: 10px;
   letter-spacing: 0.06em;
-  left: 50%;
-  position: fixed;
+  margin-top: auto;
+  padding-top: 32px;
   text-align: center;
   text-transform: uppercase;
-  transform: translateX(-50%);
-  width: calc(100% - 32px);
+  width: 100%;
   line-height: 1.6;
 }
 
@@ -386,6 +383,10 @@ button {
 @media (max-width: 640px) {
   .app-shell {
     padding: 16px;
+  }
+
+  .main-content {
+    min-height: calc(100dvh - 32px);
   }
 
   .portrait-panel {
