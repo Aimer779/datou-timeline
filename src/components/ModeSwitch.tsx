@@ -8,6 +8,7 @@ interface ModeSwitchProps {
 export function ModeSwitch({ mode, onModeChange }: ModeSwitchProps) {
   return (
     <div className="mode-switch" data-mode={mode} role="group" aria-label="头像色彩模式">
+      <span className="mode-thumb" aria-hidden="true" />
       <button
         className={mode === 'mono' ? 'mode-button mode-button--active' : 'mode-button'}
         type="button"

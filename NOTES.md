@@ -34,4 +34,6 @@
 
 ## 验证
 
+右上角切换按钮材质另参考 Laper Login 控件，适配为黑白石墨色；来源证据、有意差异和检查见 `artifacts/datou-validation/switch-material.md`。
+
 见 `artifacts/datou-validation/verification.md`。原版历史截图位于 `artifacts/validation`，不与本版验收混用。
