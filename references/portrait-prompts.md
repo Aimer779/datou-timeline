@@ -4,7 +4,7 @@
 
 ## 共用提示词
 
-Use case: identity-preserve. Edit target: attached reference. Create one standardized front-facing head-only portrait of 大头儿子, the big-headed young boy (not any adult or other character). Preserve this exact version's distinctive face, eyes, haircut and original rendering style. Change pose to straight-on, eye-level, no tilt; gentle closed-mouth smile, eyes open. Remove body, neck, clothes, props, helmet, all background and all text. Square composition, entire head including ears and hair visible, centered at x50% y50%, head bounding box roughly x15%-85%, y12%-88%, eye line at y55%. Real transparent background; no shadow outside head; no text. Do not homogenize 2D into 3D. 
+Use case: identity-preserve. Edit target: attached reference. Create one standardized front-facing head-only portrait of 大头儿子, the big-headed young boy (not any adult or other character). Preserve this exact version's distinctive face, eyes, haircut and original rendering style. Change pose to straight-on, eye-level, no tilt; gentle closed-mouth smile, eyes open. Remove body, neck, clothes, props, helmet, all background and all text. Square composition, entire head including ears and hair visible, centered at x50% y50%, head bounding box roughly x15%-85%, y12%-88%, eye line at y55%. Real transparent background; no shadow outside head; no text. Do not homogenize 2D into 3D.
 
 ## 每年输入与附加要求
 
