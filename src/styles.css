@@ -311,10 +311,6 @@ button {
   user-select: none;
 }
 
-.ruler-viewport:focus-visible .ruler-center {
-  box-shadow: 0 0 0 3px #fdfdfd, 0 0 0 5px #999;
-}
-
 .ruler-viewport[data-dragging="true"] { cursor: grabbing; }
 .ruler-viewport[data-dragging="true"] .ruler-center {
   transform: translateX(-50%) scaleY(1.08);
