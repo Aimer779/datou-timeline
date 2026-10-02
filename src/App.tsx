@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react'
-import { clampPosition, formatPosition, MIN_POSITION } from './timeline'
+import { clampPosition, formatPosition, MIN_POSITION, getAdjacentFrames } from './timeline'
 import { TimelineRuler } from './components/TimelineRuler'
 import { FaceCanvas } from './components/FaceCanvas'
 import { ModeSwitch } from './components/ModeSwitch'
@@ -26,8 +26,12 @@ function markHintSeen() {
 }
 
 export default function App() {
-  const frames = useFrameImages()
   const [position, setPosition] = useState<number>(MIN_POSITION)
+  const frames = useFrameImages(position)
+  const pair = frames.manifest ? getAdjacentFrames(position, frames.manifest.frames) : null
+  const required = pair ? (pair.ratio === 0 ? [pair.lower] : pair.ratio === 1 ? [pair.upper] : [pair.lower, pair.upper]) : []
+  const missing = required.filter(entry => !frames.loaded.has(entry.position))
+  const targetFailed = missing.some(entry => frames.failedPositions.includes(entry.position))
   const [mode, setMode] = useState<DisplayMode>('mono')
   const [hintVisible, setHintVisible] = useState(readHintVisibility)
 
@@ -51,20 +55,21 @@ export default function App() {
         <section className="portrait-panel" aria-label="大头儿子作品形象变迁">
           <div className="portrait-frame">
             <FaceCanvas position={position} mode={mode} frames={frames} />
+            {frames.loaded.size === 0 && !frames.error && (
+              <div className="portrait-loading" role="status">正在加载人物…</div>
+            )}
           </div>
           <div className="year-readout">
             年份：{formatPosition(position)}
           </div>
           <p className="work-caption">{describeYear(position)}</p>
-          {frames.error ? (
-            <p className="asset-status" role="status">
-              人物图像暂时无法加载，请刷新重试。
-            </p>
-          ) : frames.failedPositions.length > 0 ? (
-            <p className="asset-status" role="status">
-              {frames.failedPositions.length} 张图像加载失败，正在显示最近的可用形象。
-            </p>
-          ) : null}
+          <div className="asset-status-slot" role="status">
+            {frames.error || targetFailed ? (
+              <span className="asset-status">该形象加载失败。<button className="retry-button" onClick={frames.retry}>重试</button></span>
+            ) : missing.length > 0 && frames.loaded.size > 0 ? (
+              <span className="asset-status">正在加载所选形象，暂显示已加载版本…</span>
+            ) : null}
+          </div>
         </section>
 
         <section className="controls-panel" aria-label="作品年份导航">

@@ -1,6 +1,12 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { parseManifest } from '../manifest'
+import manifestData from '../data/frames.json'
+import { createFrameQueue } from '../frameQueue'
+import { portraitUrl } from '../assets'
+import { getAdjacentFrames } from '../timeline'
 import type { YearFrameManifest, LoadedFrame } from '../types'
+
+const manifest = parseManifest(manifestData)
 
 export interface FrameImageState {
   manifest: YearFrameManifest | null
@@ -11,108 +17,79 @@ export interface FrameImageState {
 }
 
 export function finalizeFrameLoading(state: FrameImageState): FrameImageState {
-  if (state.loaded.size === 0) {
-    return {
-      ...state,
-      loading: false,
-      error: 'No position portraits could be loaded',
-    }
-  }
-  return { ...state, loading: false }
+  return { ...state, loading: false,
+    error: state.loaded.size === 0 ? 'No position portraits could be loaded' : null }
 }
 
-function loadImage(path: string): Promise<HTMLImageElement> {
+function loadImage(file: string, priority: 'high' | 'low', signal: AbortSignal, attempt: number): Promise<HTMLImageElement> {
   return new Promise((resolve, reject) => {
     const image = new Image()
     image.decoding = 'async'
-    image.onload = () => resolve(image)
-    image.onerror = () => reject(new Error(`Unable to load ${path}`))
-    image.src = `/year-frames/${path}`
+    image.fetchPriority = priority
+    const cleanup = () => {
+      image.onload = image.onerror = null
+      signal.removeEventListener('abort', abort)
+    }
+    const abort = () => {
+      cleanup()
+      image.removeAttribute('src')
+      reject(new DOMException('Aborted', 'AbortError'))
+    }
+    if (signal.aborted) { abort(); return }
+    signal.addEventListener('abort', abort, { once: true })
+    image.onerror = () => { cleanup(); reject(new Error(`Unable to load ${file}`)) }
+    image.onload = () => {
+      void image.decode().then(() => {
+        cleanup()
+        if (!signal.aborted) resolve(image)
+      }, error => { cleanup(); reject(error) })
+    }
+    // A fresh retry URL also bypasses a document's cached failed image resource.
+    image.src = portraitUrl(file) + (attempt > 0 ? `?retry=${attempt}` : '')
   })
 }
 
-export function useFrameImages(): FrameImageState {
-  const [state, setState] = useState<FrameImageState>({
-    manifest: null,
-    loaded: new Map(),
-    loading: true,
-    error: null,
-    failedPositions: [],
-  })
+const initialState = (): FrameImageState => ({
+  manifest, loaded: new Map(), loading: true, error: null, failedPositions: [],
+})
+
+export function useFrameImages(position: number): FrameImageState & { retry: () => void } {
+  const [state, setState] = useState(initialState)
+  const [attempt, setAttempt] = useState(0)
+  const currentPosition = useRef(position)
+  currentPosition.current = position
+  const prioritize = useRef<() => void>(() => {})
 
   useEffect(() => {
     const controller = new AbortController()
-    let disposed = false
-
-    async function loadFrames() {
-      try {
-        const response = await fetch('/year-frames/manifest.json', { signal: controller.signal })
-        if (!response.ok) throw new Error(`Manifest request failed (${response.status})`)
-        const manifest = parseManifest(await response.json())
-        if (disposed) return
-        setState((previous) => ({ ...previous, manifest, loading: true, error: null }))
-
-        const first = manifest.frames[0]
-        if (first) {
-          try {
-            const image = await loadImage(first.file)
-            if (!disposed) {
-              setState((previous) => {
-                const loaded = new Map(previous.loaded)
-                loaded.set(first.position, { entry: first, image })
-                return { ...previous, loaded, loading: false }
-              })
-            }
-          } catch {
-            if (!disposed) {
-              setState((previous) => ({
-                ...previous,
-                failedPositions: [...previous.failedPositions, first.position],
-              }))
-            }
-          }
-        }
-
-        await Promise.all(
-          manifest.frames.slice(1).map(async (entry) => {
-            try {
-              const image = await loadImage(entry.file)
-              if (!disposed) {
-                setState((previous) => {
-                  const loaded = new Map(previous.loaded)
-                  loaded.set(entry.position, { entry, image })
-                  return { ...previous, loaded }
-                })
-              }
-            } catch {
-              if (!disposed) {
-                setState((previous) => ({
-                  ...previous,
-                  failedPositions: previous.failedPositions.includes(entry.position)
-                    ? previous.failedPositions
-                    : [...previous.failedPositions, entry.position],
-                }))
-              }
-            }
-          }),
-        )
-        if (!disposed) setState(finalizeFrameLoading)
-      } catch (error) {
-        if (disposed || (error instanceof DOMException && error.name === 'AbortError')) return
-        setState((previous) => ({
-          ...previous,
-          loading: false,
-          error: error instanceof Error ? error.message : 'Unable to load position frames',
-        }))
-      }
+    setState(initialState())
+    const queue = createFrameQueue(manifest.frames,
+      entry => loadImage(entry.file, entry.position === manifest.frames[0].position ? 'high' : 'low', controller.signal, attempt),
+      (entry, image) => setState(previous => {
+        const loaded = new Map(previous.loaded)
+        loaded.set(entry.position, { entry, image })
+        return { ...previous, loaded }
+      }),
+      entry => setState(previous => ({ ...previous, failedPositions: [...previous.failedPositions, entry.position] })),
+      () => setState(finalizeFrameLoading),
+    )
+    prioritize.current = () => {
+      const target = currentPosition.current
+      const pair = getAdjacentFrames(target, manifest.frames)
+      queue.prioritize(entry => {
+        const needed = pair && (entry.position === pair.lower.position || entry.position === pair.upper.position)
+        return (needed ? -100 : 0) + Math.abs(entry.position - target)
+      })
     }
-
-    void loadFrames()
+    prioritize.current()
+    queue.start()
     return () => {
-      disposed = true
+      queue.stop()
       controller.abort()
+      prioritize.current = () => {}
     }
-  }, [])
+  }, [attempt])
 
-  return state
+  useEffect(() => { prioritize.current() }, [position])
+  return { ...state, retry: () => setAttempt(value => value + 1) }
 }

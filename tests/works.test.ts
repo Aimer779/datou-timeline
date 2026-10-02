@@ -15,9 +15,9 @@ describe('work-year semantics', () => {
   })
 
   it('accepts only the complete catalog with safe local portrait paths', () => {
-    const manifest = { version: 1, width: 1254, height: 1254,
-      frames: NODE_POSITIONS.map(position => ({ position, year: Math.min(position, 2026), file: `frame-${position}.png`,
-        width: 1254, height: 1254, sha256: 'a'.repeat(64) })) }
+    const manifest = { version: 1, width: 768, height: 768,
+      frames: NODE_POSITIONS.map(position => ({ position, year: Math.min(position, 2026), file: `frame-${position}.webp`,
+        width: 768, height: 768, sha256: 'a'.repeat(64) })) }
     expect(parseManifest(manifest).frames).toHaveLength(10)
     expect(parseManifest(manifest).frames.filter(frame => frame.year === 2026)).toHaveLength(2)
     expect(() => parseManifest({ ...manifest, frames: manifest.frames.map((frame, i) =>
@@ -26,6 +26,6 @@ describe('work-year semantics', () => {
       i === 9 ? { ...frame, position: 2026 } : frame) })).toThrow()
     expect(() => parseManifest({ ...manifest, frames: manifest.frames.slice(1) })).toThrow()
     expect(() => parseManifest({ ...manifest, frames: manifest.frames.map((frame, i) =>
-      i === 0 ? { ...frame, file: '../outside.png' } : frame) })).toThrow()
+      i === 0 ? { ...frame, file: '../outside.webp' } : frame) })).toThrow()
   })
 })

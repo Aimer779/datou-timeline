@@ -6,9 +6,9 @@ import { finalizeFrameLoading, type FrameImageState } from '../src/hooks/useFram
 const frames: YearFrameManifestEntry[] = NODE_POSITIONS.map((position) => ({
   position,
   year: Math.min(position, 2026) as NodeYear,
-  file: `position-${position}.png`,
-  width: 1254,
-  height: 1254,
+  file: `position-${position}.webp`,
+  width: 768,
+  height: 768,
   sha256: 'a'.repeat(64),
 }))
 

@@ -166,6 +166,30 @@ button {
   width: min(26vw, 315px);
 }
 
+.portrait-loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #727270;
+  font-size: 12px;
+}
+
+.asset-status-slot {
+  min-height: 20px;
+  max-width: 90vw;
+  text-align: center;
+}
+
+.retry-button {
+  border: 0;
+  background: transparent;
+  color: inherit;
+  padding: 4px 8px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
 .face-canvas {
   filter: grayscale(0);
   transition: filter 180ms ease-out;

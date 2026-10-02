@@ -1,0 +1,87 @@
+{
+  "version": 1,
+  "width": 768,
+  "height": 768,
+  "frames": [
+    {
+      "height": 768,
+      "year": 1995,
+      "width": 768,
+      "sha256": "92c72e39709dbe2c7be8641d5627c4dee0425bd35daa180f13255b7424b46fbb",
+      "file": "year-1995.92c72e39709d.webp",
+      "position": 1995
+    },
+    {
+      "height": 768,
+      "year": 2013,
+      "width": 768,
+      "sha256": "092d56a5924e4a6f44805405606806831192b388ef9a6f3a21c14aed7cd31460",
+      "file": "year-2013.092d56a5924e.webp",
+      "position": 2013
+    },
+    {
+      "height": 768,
+      "year": 2014,
+      "width": 768,
+      "sha256": "4336ea5d87eff6239a0cc929737340a2a090714575ce9b6a905aab50065f8be1",
+      "file": "year-2014.4336ea5d87ef.webp",
+      "position": 2014
+    },
+    {
+      "height": 768,
+      "year": 2016,
+      "width": 768,
+      "sha256": "d547e29960def2f42f6a01a9993f2bb1319247923709d0f26a7813b7b2d35c30",
+      "file": "year-2016.d547e29960de.webp",
+      "position": 2016
+    },
+    {
+      "height": 768,
+      "year": 2018,
+      "width": 768,
+      "sha256": "4a186d15e855b6f37c1ffd759cbb092797b91abd575fb35036603a2c33a1e064",
+      "file": "year-2018.4a186d15e855.webp",
+      "position": 2018
+    },
+    {
+      "height": 768,
+      "year": 2021,
+      "width": 768,
+      "sha256": "24adb867988c92febb2c15d342f1b3075f9f3f1f2080756a7448ae167f864123",
+      "file": "year-2021.24adb867988c.webp",
+      "position": 2021
+    },
+    {
+      "height": 768,
+      "year": 2022,
+      "width": 768,
+      "sha256": "248e359c23e93529b0d22d505bf36fd8d1d09e95fb83eb0d21790850e25bf84f",
+      "file": "year-2022.248e359c23e9.webp",
+      "position": 2022
+    },
+    {
+      "height": 768,
+      "year": 2024,
+      "width": 768,
+      "sha256": "19dc13543c0855b78e073817ce077731ac610ba54fba81b4f9605ca52bd783d0",
+      "file": "year-2024.19dc13543c08.webp",
+      "position": 2024
+    },
+    {
+      "height": 768,
+      "year": 2026,
+      "width": 768,
+      "sha256": "70ba0f4e277dc320572f9f9400ebf35ef87baa60eb9189f5442aab4e1de57d49",
+      "file": "year-2026.70ba0f4e277d.webp",
+      "position": 2026
+    },
+    {
+      "width": 768,
+      "year": 2026,
+      "height": 768,
+      "file": "year-2026-adult.5f9a64b8982d.webp",
+      "position": 2027,
+      "sha256": "5f9a64b8982d6ae8088977cd1fc3cc27a75ef47e28554732f36ca10569fcd430"
+    }
+  ]
+}

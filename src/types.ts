@@ -18,8 +18,8 @@ export interface YearFrameManifestEntry {
 
 export interface YearFrameManifest {
   version: 1
-  width: 1254
-  height: 1254
+  width: 768
+  height: 768
   frames: YearFrameManifestEntry[]
 }
 

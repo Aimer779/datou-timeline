@@ -14,8 +14,8 @@ export function parseManifest(value: unknown): YearFrameManifest {
   if (!value || typeof value !== 'object') throw new Error('manifest must be an object')
   const candidate = value as Partial<YearFrameManifest>
   if (candidate.version !== 1) throw new Error('manifest version must be 1')
-  if (candidate.width !== 1254 || candidate.height !== 1254) {
-    throw new Error('manifest canvas dimensions must be 1254x1254')
+  if (candidate.width !== 768 || candidate.height !== 768) {
+    throw new Error('manifest canvas dimensions must be 768x768')
   }
   if (!Array.isArray(candidate.frames)) throw new Error('manifest frames must be an array')
 
@@ -32,8 +32,8 @@ export function parseManifest(value: unknown): YearFrameManifest {
 
   return {
     version: 1,
-    width: 1254,
-    height: 1254,
+    width: 768,
+    height: 768,
     frames: frames.sort((a, b) => a.position - b.position),
   }
 }
@@ -45,14 +45,14 @@ function validateEntry(value: unknown, index: number): YearFrameManifestEntry {
   if (!isNodePosition(frame.position) || frame.year !== Math.min(frame.position, 2026)) {
     throw new Error(`frame ${index} has an invalid position/year pairing`)
   }
-  if (typeof frame.file !== 'string' || !/^[-\w./]+\.png$/i.test(frame.file)) {
-    throw new Error(`frame ${index} file must be a relative PNG path`)
+  if (typeof frame.file !== 'string' || !/^[-\w./]+\.webp$/i.test(frame.file)) {
+    throw new Error(`frame ${index} file must be a relative WebP path`)
   }
   if (frame.file.startsWith('/') || frame.file.includes('..')) {
     throw new Error(`frame ${index} file must stay below year-frames`)
   }
-  if (frame.width !== 1254 || frame.height !== 1254) {
-    throw new Error(`frame ${index} dimensions must be 1254x1254`)
+  if (frame.width !== 768 || frame.height !== 768) {
+    throw new Error(`frame ${index} dimensions must be 768x768`)
   }
   if (typeof frame.sha256 !== 'string' || !SHA256_PATTERN.test(frame.sha256)) {
     throw new Error(`frame ${index} sha256 must be a 64-character hex digest`)
@@ -61,8 +61,8 @@ function validateEntry(value: unknown, index: number): YearFrameManifestEntry {
     position: frame.position,
     year: frame.year,
     file: frame.file,
-    width: 1254,
-    height: 1254,
+    width: 768,
+    height: 768,
     sha256: frame.sha256.toLowerCase(),
   }
 }

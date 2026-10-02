@@ -1,5 +1,9 @@
 # 改版说明
 
+## 发布版本
+
+当前发布配置以 README.md 为准：用户已明确授权创建公开仓库并发布到 GitHub Pages / Cloudflare Pages。图像源文件移至 `references/portraits-original/`，部署文件为768×768透明WebP，共856,456字节，带哈希文件名；清单编译进应用，不再通过公开manifest请求加载。下方1254px与本地预览限制等内容保留为早期实现历史。
+
 ## SOURCE
 
 - 上游：https://github.com/Aimer779/age-progression
